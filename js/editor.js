@@ -129,9 +129,10 @@ var pad = function ( number, length ) {
 var codeToolbar = function() {
   if (embedded) return;
   toolbar(
+    buttonUpdate(),
     buttonHide(),
     buttonCodeMenu()
-  ); //buttonUpdate(),
+  );
 };
 
 var shortCodeToolbar = function() {
@@ -192,72 +193,71 @@ var menu = function() {
   });
 };
 
+// Ruudun päivitys
 var buttonUpdate = function() {
   var el = document.createElement( 'button' );
   el.className = 'button';
-
-  var checkbox = document.createElement( 'input' );
-  checkbox.type = 'checkbox';
-
-  if ( documents.length == 0 || documents[ 0 ].autoupdate === true ) checkbox.checked = true;
-
-  checkbox.style.margin = '-4px 4px -4px 0px';
-  checkbox.addEventListener( 'click', function ( event ) {
-
+  var buttonUpdateIcon = document.createElement('span');
+  if (documents.length == 0 || documents[0].autoupdate === true) { buttonUpdateIcon.className = 'fa fa-pause'; } 
+  else { buttonUpdateIcon.className = 'fa fa-play'; }
+  buttonUpdateIcon.id = 'update';
+  el.appendChild(buttonUpdateIcon);
+  el.title = 'Koodin automaattinen päivitys päälle/pois';
+  el.addEventListener('click', function (event) {
     event.stopPropagation();
-
-    documents[ 0 ].autoupdate = documents[ 0 ].autoupdate === false;
-
+    documents[0].autoupdate = documents[0].autoupdate === false;
     syncStore();
-
+    toggleUpdate();
   }, false );
-
-  el.appendChild( checkbox );
-  el.appendChild( document.createTextNode( 'suorita koodi' ) );
-  el.addEventListener( 'click', function ( event ) { update(); }, false );
-
   return el;
 };
+
 
 var menuMakeCopy = function() {
   var el = document.createElement( 'li' );
   el.textContent = 'tee kopio';
   el.addEventListener( 'click', function ( event ) {
-
     openMakeCopyDialog();
-
   }, false );
-
   return el;
 };
 
 var menuSave = function() {
   var el = document.createElement( 'li' );
-  el.textContent = 'tallenna';
+  el.textContent = ' tallenna';
   el.addEventListener( 'click', function ( event ) { save(); }, false );
   return el;
 };
 
 var menuDownload = function() {
-  var el = document.createElement( 'li' )
-    , a = document.createElement( 'a' );
-  el.appendChild( a );
+  var el = document.createElement('li')
+    , a = document.createElement('a');
+  var icon = document.createElement('span');
+  icon.className = 'fa fa-floppy-o';
+  el.appendChild(icon);
+  el.appendChild(a);
   a.download = 'index.html';
-  a.textContent = 'tallenna omalle koneelle';
+  a.textContent = ' tallenna omalle koneelle';
   a.addEventListener( 'click', function ( event ) { download(event.target); }, false );
   return el;
 };
 
 var menuNew = function() {
   var el = document.createElement( 'li' );
-  el.textContent = 'luo uusi (esimerkit)';
+  var icon = document.createElement('span');
+  icon.className = 'fa fa-file-code-o';
+  icon.textContent = ' luo uusi (esimerkit)';
+  el.appendChild(icon);
   el.addEventListener( 'click', function ( event ) { openNewDialog(); }, false );
   return el;
 };
 
 var menuClear = function() {
   var el = document.createElement( 'li' );
-  el.textContent = 'tyhjennä piirtoalue (tyhjä pohja)';
+  var icon = document.createElement('span');
+  icon.className = 'fa fa-file-o';
+  icon.textContent = ' tyhjennä piirtoalue (tyhjä pohja)';
+  el.appendChild(icon);
   el.addEventListener( 'click', function ( event ) { clearContent(true); }, false );    //openProjectsDialog();
   return el;
 };
@@ -324,15 +324,15 @@ var popup = ( function () {
   return this;
 } )();
 
-
 var buttonHide = function() {
   var el = document.createElement( 'button' );
   el.className = 'button';
-  el.textContent = 'piilota koodi';
+  var icon = document.createElement('span');
+  icon.className = 'fa fa-eye-slash';
+  el.appendChild(icon);
+  el.title = 'Piilota koodi';
   el.addEventListener( 'click', function ( event ) {
-
-    toggle();
-
+    toggleCodeView();
   }, false );
   return el;
 };
@@ -340,11 +340,12 @@ var buttonHide = function() {
 var buttonShow = function() {
   var el = document.createElement( 'button' );
   el.className = 'button';
-  el.textContent = 'näytä koodi';
+  var icon = document.createElement('span');
+  icon.className = 'fa fa-eye';
+  el.appendChild(icon);
+  el.title = 'Näytä koodi';
   el.addEventListener( 'click', function ( event ) {
-
-    toggle();
-
+    toggleCodeView();
   }, false );
   return el;
 };
@@ -352,13 +353,14 @@ var buttonShow = function() {
 var buttonCodeMenu = function() {
   var el = document.createElement( 'button' );
   el.className = 'button';
-  el.style.fontWeight = 'bold';
-  el.textContent = '☰';
+  var icon = document.createElement('span');
+  icon.className = 'fa fa-bars';
+  el.appendChild(icon);
   el.title = 'Näytä valinnat';
   el.addEventListener( 'click', function ( event ) {
     if (document.getElementById('projects-dialog')) {
       document.body.removeChild(
-        document.getElementById('projects-dialog')
+      document.getElementById('projects-dialog')
       );
     }
     closeMakeCopyDialog();
@@ -405,16 +407,12 @@ document.addEventListener( 'keypress', function ( event ) {
 
 document.addEventListener( 'keydown', function ( event ) {
   if ( event.keyCode === 83 && ( event.ctrlKey === true || event.metaKey === true ) ) {
-
     event.preventDefault();
     save();
-
   }
 
   if ( event.keyCode === 13 && ( event.ctrlKey === true || event.metaKey === true ) ) {
-
     update();
-
   }
 
   if ( event.keyCode === 27 ) { // ESC
@@ -440,7 +438,7 @@ document.addEventListener( 'keydown', function ( event ) {
       );
     }
     else {
-      toggle();
+      toggleCodeView();
     }
 
   }
@@ -699,11 +697,8 @@ var syncStore = function() {
 
 var update = function () {
   if (EDIT_ONLY) return;
-
   while ( preview.children.length > 0 ) {
-
     preview.removeChild( preview.firstChild );
-
   }
 
   var iframe = document.createElement( 'iframe' );
@@ -717,8 +712,6 @@ var update = function () {
   content.open();
   content.write( editor.getValue() );
   content.close();
-
-  //content.body.style.margin = '0';
 };
 
 var changeProject = function(filename) {
@@ -772,9 +765,25 @@ var download = function(el) {
   el.download = documents[0].filename+'.html';
 };
 
+// Toggle: päivitä / pysäytä koodin päivitys
+
+var toggleUpdate = function() {
+  if (documents.length == 0 || documents[0].autoupdate === true) {
+    console.log('Autoupdate ON');
+    var el = document.getElementById('update');
+    el.className = 'fa fa-pause';
+    update();
+  }
+  else {
+    console.log('Autoupdate OFF');
+    var el = document.getElementById('update');
+    el.className = 'fa fa-play';
+  }
+};
+
 // Toggle: näytä / piilota koodi
 
-var toggle = function() {
+var toggleCodeView = function() {
   if ( editor_el.style.display === '' ) hideCode();
   else showCode();
 };
@@ -817,18 +826,13 @@ var nextUntitled = function() {
   return 'Untitled ' + (nums.length == 0 ? 1 : nums[nums.length-1] + 1);
 };
 
-
 if ( window.location.hash ) {
-
   var hash = window.location.hash.substr( 1 );
   var version = hash.substr( 0, 2 );
 
   if ( version == 'A/' ) {
-
     alert( '' );
-
   } else if ( version == 'B/' ) {
-
     create(decode(hash.substr(2)));
     window.location.hash = '';
   }
