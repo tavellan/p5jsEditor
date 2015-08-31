@@ -104,6 +104,14 @@ ul.menu li {
   cursor: pointer;
 }
 
+ul.menu li > i {
+  float: left;
+}
+
+ul.menu li > span {
+  margin: 0 0 0 20px; display: block;
+}
+
 #editor, #editor_embed {
 	// font-family: inconsolata;
 	background-color: rgba(255,255,255,0.0);

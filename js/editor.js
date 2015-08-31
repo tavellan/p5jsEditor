@@ -212,8 +212,7 @@ var buttonUpdate = function() {
   return el;
 };
 
-
-var menuMakeCopy = function() {
+/*var menuMakeCopy = function() {
   var el = document.createElement( 'li' );
   el.textContent = 'tee kopio';
   el.addEventListener( 'click', function ( event ) {
@@ -228,37 +227,44 @@ var menuSave = function() {
   el.addEventListener( 'click', function ( event ) { save(); }, false );
   return el;
 };
-
-var menuDownload = function() {
-  var el = document.createElement('li')
-    , a = document.createElement('a');
-  var icon = document.createElement('span');
-  icon.className = 'fa fa-floppy-o';
-  el.appendChild(icon);
-  el.appendChild(a);
-  a.download = 'index.html';
-  a.textContent = ' tallenna omalle koneelle';
-  a.addEventListener( 'click', function ( event ) { download(event.target); }, false );
-  return el;
-};
+*/
 
 var menuNew = function() {
   var el = document.createElement( 'li' );
-  var icon = document.createElement('span');
+  var icon = document.createElement('i');
   icon.className = 'fa fa-file-code-o';
-  icon.textContent = ' luo uusi (esimerkit)';
   el.appendChild(icon);
+  var text = document.createElement('span');
+  text.textContent = 'luo uusi (esimerkit)';
+  el.appendChild(text);
   el.addEventListener( 'click', function ( event ) { openNewDialog(); }, false );
   return el;
 };
 
 var menuClear = function() {
   var el = document.createElement( 'li' );
-  var icon = document.createElement('span');
+  var icon = document.createElement('i');
   icon.className = 'fa fa-file-o';
-  icon.textContent = ' tyhjennä piirtoalue (tyhjä pohja)';
   el.appendChild(icon);
+  var text = document.createElement('span');
+  text.textContent = 'tyhjennä piirtoalue (tyhjä pohja)';
+  el.appendChild(text);
   el.addEventListener( 'click', function ( event ) { clearContent(true); }, false );    //openProjectsDialog();
+  return el;
+};
+
+var menuDownload = function() {
+  var el = document.createElement('li')
+  var icon = document.createElement('i');
+  icon.className = 'fa fa-floppy-o';
+  el.appendChild(icon);
+  var text = document.createElement('span');
+  var a = document.createElement('a');
+  a.download = 'index.html';
+  a.textContent = 'tallenna omalle koneelle';
+  a.addEventListener( 'click', function ( event ) { download(event.target); }, false );
+  text.appendChild(a);
+  el.appendChild(text);
   return el;
 };
 
@@ -654,14 +660,12 @@ var openMakeCopyDialog = function() {
     event.preventDefault();
   }, false );
   closeSaveP.appendChild( closeSaveLink );
-
   saveFileField.focus();
 };
 
 var closeMakeCopyDialog = function() {
   var dialog = document.getElementById('save-dialog');
   if (!dialog) return;
-
   dialog.parentElement.removeChild(dialog);
 };
 
@@ -675,10 +679,8 @@ var create = function(code, title) {
       autoupdate: documents[0].autoupdate
     });
   }
-
   documents[0].code = code;
   documents[0].filename = title;
-
   syncStore();
 };
 
