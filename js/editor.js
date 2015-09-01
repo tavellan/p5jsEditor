@@ -6,6 +6,12 @@ P5.JS EDITOR
 29.8.2015 
  - Korjattu tallennus ja uusien projektien luominen
  - Tallennus .html -tiedostopäätteisenä
+31.8.2015
+ - Korjattu valikoiden tyylejä ja otettu käyttöön Font Awesome-ikonit
+ - Automaattisen päivityksen funktiot tehty uusiksi
+1.9.2015
+ - CSS-korjauksia ja lisätty linkit GitHubiin ja p5js.org:iin
+ - Koodia siistitty ja kommentoitu
 */
 
 window.URL = window.URL || window.webkitURL;
@@ -115,7 +121,9 @@ var popup_el = document.createElement( 'div' );
 popup_el.id = "popup";
 if (!embedded) document.body.appendChild( popup_el );
 
-// toolbar
+/*
+ * TOIMINTOPAINIKKEET JA VALIKKO
+ */ 
 
 var pad = function ( number, length ) {
 
@@ -145,7 +153,9 @@ var projectMenu = function() {
   menu(
     menuNew(),
     menuClear(),
-    menuDownload()
+    menuDownload(),
+    menuReference(),
+    menuAbout()
   );
 };
 
@@ -212,23 +222,7 @@ var buttonUpdate = function() {
   return el;
 };
 
-/*var menuMakeCopy = function() {
-  var el = document.createElement( 'li' );
-  el.textContent = 'tee kopio';
-  el.addEventListener( 'click', function ( event ) {
-    openMakeCopyDialog();
-  }, false );
-  return el;
-};
-
-var menuSave = function() {
-  var el = document.createElement( 'li' );
-  el.textContent = ' tallenna';
-  el.addEventListener( 'click', function ( event ) { save(); }, false );
-  return el;
-};
-*/
-
+// Valikko: Uusi projekti
 var menuNew = function() {
   var el = document.createElement( 'li' );
   var icon = document.createElement('i');
@@ -241,6 +235,7 @@ var menuNew = function() {
   return el;
 };
 
+// Valikko: Piirtoalueen tyhjennys
 var menuClear = function() {
   var el = document.createElement( 'li' );
   var icon = document.createElement('i');
@@ -253,6 +248,7 @@ var menuClear = function() {
   return el;
 };
 
+// Valikko: Tallennus omalle koneelle
 var menuDownload = function() {
   var el = document.createElement('li')
   var icon = document.createElement('i');
@@ -265,6 +261,36 @@ var menuDownload = function() {
   a.addEventListener( 'click', function ( event ) { download(event.target); }, false );
   text.appendChild(a);
   el.appendChild(text);
+  return el;
+};
+
+// Valikko: Dokumentaatio
+var menuReference = function() {
+  var el = document.createElement( 'li' );
+  var icon = document.createElement('i');
+  icon.className = 'fa fa-book';
+  el.appendChild(icon);
+  var text = document.createElement('span');
+  text.textContent = 'p5.js dokumentaatio';
+  el.appendChild(text);
+  el.addEventListener( 'click', function ( event ) { 
+    window.open('http://p5js.org/reference/');
+}, false );
+  return el;
+};
+
+// Valikko: Tietoja
+var menuAbout = function() {
+  var el = document.createElement( 'li' );
+  var icon = document.createElement('i');
+  icon.className = 'fa fa-info-circle';
+  el.appendChild(icon);
+  var text = document.createElement('span');
+  text.textContent = 'Tietoja sovelluksesta';
+  el.appendChild(text);
+  el.addEventListener( 'click', function ( event ) { 
+    window.open('https://github.com/tavellan/p5jsEditor/');
+}, false );
   return el;
 };
 
@@ -330,6 +356,7 @@ var popup = ( function () {
   return this;
 } )();
 
+// Painike: Piilota koodi
 var buttonHide = function() {
   var el = document.createElement( 'button' );
   el.className = 'button';
@@ -343,6 +370,7 @@ var buttonHide = function() {
   return el;
 };
 
+// Painike: Näytä koodi
 var buttonShow = function() {
   var el = document.createElement( 'button' );
   el.className = 'button';
@@ -356,6 +384,7 @@ var buttonShow = function() {
   return el;
 };
 
+// Painike: Näytä valinnat
 var buttonCodeMenu = function() {
   var el = document.createElement( 'button' );
   el.className = 'button';
@@ -372,12 +401,12 @@ var buttonCodeMenu = function() {
     closeMakeCopyDialog();
     projectMenu();
   }, false );
-
   return el;
 };
 
-
-// events
+/*
+ * TAPAHTUMAKÄSITTELIJÄT
+ */
 
 document.addEventListener( 'drop', function ( event ) {
 
@@ -428,19 +457,9 @@ document.addEventListener( 'keydown', function ( event ) {
         document.getElementById('code-editor-menu')
       );
     }
-    else if (document.getElementById('projects-dialog')) {
-      document.body.removeChild(
-        document.getElementById('projects-dialog')
-      );
-    }
     else if (document.getElementById('new-dialog')) {
       document.body.removeChild(
         document.getElementById('new-dialog')
-      );
-    }
-    else if (document.getElementById('save-dialog')) {
-      document.body.removeChild(
-        document.getElementById('save-dialog')
       );
     }
     else {
@@ -458,7 +477,9 @@ document.addEventListener( 'keydown', function ( event ) {
   event.preventDefault();
 });
 
-// dialogs
+/*
+ * VALIKKOIKKUNAT
+ */ 
 
 var openNewDialog = function() {
   var newDialog = document.createElement( 'div' );
@@ -542,134 +563,9 @@ var closeNewDialog = function() {
   dialog.parentElement.removeChild(dialog);
 };
 
-var openProjectsDialog = function() {
-  closeProjectsDialog();
-
-  var projectsDialog = document.createElement( 'div' );
-  projectsDialog.id = 'projects-dialog';
-  projectsDialog.className = 'dialog';
-  document.body.appendChild( projectsDialog );
-
-  documents.forEach(function(doc) {
-    projectsDialog.appendChild(projectsDialogRow(doc));
-  });
-
-  var closeP = document.createElement( 'p' );
-  closeP.className = 'cancel';
-  projectsDialog.appendChild( closeP );
-
-  var closeLink = document.createElement( 'a' );
-  closeLink.href = '#';
-  closeLink.textContent = '[ sulje ]';
-  closeLink.addEventListener( 'click', function ( event ) {
-
-    closeProjectsDialog();
-    event.stopPropagation();
-    event.preventDefault();
-
-  }, false );
-  closeP.appendChild( closeLink );
-};
-
-var projectsDialogRow = function(doc) {
-  var row = document.createElement( 'p' );
-
-  var link = document.createElement( 'a' );
-  link.href = '#';
-  link.textContent = doc.filename;
-  link.addEventListener( 'click', function ( event ) {
-
-    changeProject(doc.filename);
-    closeProjectsDialog();
-    event.stopPropagation();
-    event.preventDefault();
-
-  }, false );
-  row.appendChild(link);
-  row.appendChild(document.createTextNode(' '));
-
-  var del = document.createElement( 'a' );
-  del.href = '#';
-  del.textContent = '[ poista ]';
-  del.className = 'delete';
-  del.addEventListener( 'click', function ( event ) {
-    var message =
-      'Poistettua projektia ei voi palauttaa. ' +
-      'Oletko aivan varma, että haluat poistaa projektin "' + doc.filename + '"?';
-
-    if (confirm(message)) {
-      deleteProject(doc.filename);
-      openProjectsDialog();
-    }
-    event.stopPropagation();
-    event.preventDefault();
-
-  }, false );
-  row.appendChild(del);
-
-  return row;
-};
-
-var closeProjectsDialog = function() {
-  var dialog = document.getElementById('projects-dialog');
-  if ( ! dialog ) return;
-
-  dialog.parentElement.removeChild(dialog);
-};
-
-var openMakeCopyDialog = function() {
-  var saveDialog = document.createElement( 'div' );
-  saveDialog.id = 'save-dialog';
-  saveDialog.className = 'dialog';
-  document.body.appendChild( saveDialog );
-
-  var saveFileLabel = document.createElement( 'label' );
-  saveFileLabel.textContent = 'Nimi:';
-  saveDialog.appendChild( saveFileLabel );
-
-  var saveFileField = document.createElement( 'input' );
-  saveFileField.type = 'text';
-  saveFileField.size = 30;
-  saveFileField.value = documents[0].filename;
-  saveFileLabel.appendChild( saveFileField );
-  saveFileField.addEventListener('keypress', function(event) {
-    if (event.keyCode != 13) return;
-    saveAs(saveFileField.value);
-    closeMakeCopyDialog();
-  }, false);
-
-  var buttonSaveDialog = document.createElement( 'button' );
-  buttonSaveDialog.className = 'button';
-  buttonSaveDialog.textContent = 'Tallenna';
-  buttonSaveDialog.addEventListener( 'click', function ( event ) {
-    saveAs(saveFileField.value);
-    closeMakeCopyDialog();
-  }, false );
-  saveDialog.appendChild( buttonSaveDialog );
-
-  var closeSaveP = document.createElement( 'p' );
-  closeSaveP.className = 'cancel';
-  saveDialog.appendChild( closeSaveP );
-
-  var closeSaveLink = document.createElement( 'a' );
-  closeSaveLink.href = '#';
-  closeSaveLink.textContent = '[ sulje ]';
-  closeSaveLink.addEventListener( 'click', function ( event ) {
-    closeMakeCopyDialog();
-    event.stopPropagation();
-    event.preventDefault();
-  }, false );
-  closeSaveP.appendChild( closeSaveLink );
-  saveFileField.focus();
-};
-
-var closeMakeCopyDialog = function() {
-  var dialog = document.getElementById('save-dialog');
-  if (!dialog) return;
-  dialog.parentElement.removeChild(dialog);
-};
-
-// actions
+/*
+ * YLEISFUNKTIOT
+ */
 
 var create = function(code, title) {
   if (!title) title = nextUntitled();
@@ -828,6 +724,10 @@ var nextUntitled = function() {
   return 'Untitled ' + (nums.length == 0 ? 1 : nums[nums.length-1] + 1);
 };
 
+/*
+ * MAIN (STARTUP)
+ */
+
 if ( window.location.hash ) {
   var hash = window.location.hash.substr( 1 );
   var version = hash.substr( 0, 2 );
@@ -841,7 +741,6 @@ if ( window.location.hash ) {
 
 }
 
-//setContent((documents.length > 0) ? documents[0].code : templates[0].code);
 clearContent(true);
 
 codeToolbar();
