@@ -398,7 +398,7 @@ var buttonCodeMenu = function() {
       document.getElementById('projects-dialog')
       );
     }
-    closeMakeCopyDialog();
+    closeNewDialog();
     projectMenu();
   }, false );
   return el;
