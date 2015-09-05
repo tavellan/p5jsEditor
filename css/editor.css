@@ -100,7 +100,7 @@ ul.menu {
 
 ul.menu li {
   display: block;
-  padding: 4px;
+  padding: 6px;
   cursor: pointer;
 }
 
@@ -150,28 +150,3 @@ ul.menu li > span {
 #editor .ace_scroller, #editor_embed .ace_scroller {
   background-color: rgba(255,255,255,0.0);
 }
-
-#popup {
-  position: absolute;
-  color: rgb(235,235,235);
-  padding: 40px 20px 20px 20px;
-  background-color: rgba(24, 24, 24, 0.95);
-  border-radius: 2px;
-  z-index: 101;
-}
-
-#popup h1 {
-  margin: 0px 0px 5px;
-  font-size: 100%;
-}
-
-#popup a {
-  color: rgb(235,235,235);
-}
-
-#popup .instructions, #popup label {
-  font-size: 75%;
-  text-align: right;
-  margin-top: 5px;
-}
-
