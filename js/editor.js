@@ -15,9 +15,16 @@ P5.JS EDITOR
 5.9.2015
  - Päivityksiä käytettävyyteen
  - Poistettu vanha popup-funktio ja tehty uusi
+19.9.2015
+ - Estetty F5-painike ja Windows + R.
 */
 
 window.URL = window.URL || window.webkitURL;
+
+// Disable reload
+window.onbeforeunload = function() { 
+  return 'Sivun päivittäminen tyhjentää piirtoalueen!';
+}
 
 // deflate
 var decode = function ( string ) {
